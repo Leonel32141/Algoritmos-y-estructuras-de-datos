@@ -1,0 +1,8 @@
+M=5
+multiplicarPorPI=[1,2,3,4,5]
+ResultadoXPI=[]
+i=0
+
+for i in range(M):
+    ResultadoXPI.append(multiplicarPorPI[i]*3.14)
+print(ResultadoXPI)
