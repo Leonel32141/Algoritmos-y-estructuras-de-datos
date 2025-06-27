@@ -1,0 +1,9 @@
+M=5
+a=[1,2,3,4,5]
+e=[6,7,8,9,10]
+i=[]
+
+i=0
+for i in range(M):
+    c.append(a[i]*e[i])
+print(c)
