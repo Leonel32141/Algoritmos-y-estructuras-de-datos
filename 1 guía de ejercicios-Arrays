@@ -1,0 +1,21 @@
+def productoEscalarConInverso(a, e):
+    Resultado = 0
+    for i in range(len(a)):
+        Resultado = Resultado + a[i] * e[i]
+    return Resultado
+
+
+def invertirArreglo(a):
+    e = []
+    for i in range(len(a) - 1, -1, -1):
+        e.append(a[i])
+    return e
+
+
+def productoEscalarConInverso(a, e):
+    eInvertido = invertirArreglo(e)
+    return productoEscalar(a, eInvertido)
+
+a = [1, 2, 3]
+e = [4, 5, 6]
+print("El resultado entre el arreglo A y el E inverso es:", productoEscalarConInverso(a, e))
