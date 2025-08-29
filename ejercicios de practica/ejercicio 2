@@ -1,0 +1,6 @@
+# Ejercicio 2 – Diccionarios
+persona = {"nombre": "Ana", "edad": 25, "profesión": "Ingeniera"}
+persona["edad"] = 26
+persona["ciudad"] = "Buenos Aires"
+del persona["profesión"]
+print(persona)
