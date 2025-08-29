@@ -1,0 +1,3 @@
+# 1.bis.1 – Tuplas pares
+def filtrar_pares(tupla):
+return tuple(num for num in tupla if num % 2 == 0)
