@@ -1,0 +1,5 @@
+# 1.bis.4 – Tupla + Diccionario
+nombres = ("Juan", "María", "Pedro")
+edades = [20, 22, 19]
+dicc = dict(zip(nombres, edades))
+print(dicc)
