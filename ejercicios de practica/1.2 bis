@@ -1,0 +1,5 @@
+# 1.bis.2 – Diccionarios precios
+productos = {"Camisa": 80, "Pantalón": 150, "Zapatos": 200, "Gorra": 50}
+for producto, precio in productos.items():
+if precio > 100:
+print(producto, precio)
