@@ -1,0 +1,6 @@
+# Ejercicio 3 – Conjuntos
+curso1 = {"Juan", "María", "Pedro", "Lucía"}
+curso2 = {"Pedro", "Ana", "Lucía", "Martín"}
+print(curso1 & curso2)
+print(curso1 - curso2)
+print(curso1 | curso2)
