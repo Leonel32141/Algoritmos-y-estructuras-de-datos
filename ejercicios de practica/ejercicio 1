@@ -1,0 +1,6 @@
+# Ejercicio 1 – Tuplas
+
+dias = ("Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo")
+print(dias[2])
+d1, d2, d3 = dias[0:3]
+print(d1, d2, d3)
