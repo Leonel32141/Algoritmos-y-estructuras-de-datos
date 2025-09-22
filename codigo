@@ -1,0 +1,359 @@
+import os
+from datetime import datetime
+
+CLAVE_ADMIN = "123"
+DESCUENTO_POR_MAYOR = 0.10 
+
+
+INVENTARIO_MATRIZ = [
+    [1, "River Plate", "M", "Blanco/Rojo", 10000, 50],
+    [2, "Boca Juniors", "S", "Azul/Amarillo", 100000, 30],
+    [3, "Independiente", "L", "Rojo", 80000, 25],
+    [4, "Racing Club", "XL", "Blanco/Azul", 95000, 40],
+    [5, "San Lorenzo", "M", "Azul/Rojo", 85000, 35],
+    [6, "River Plate", "L", "Blanco/Rojo", 11000, 15],
+    [7, "Boca Juniors", "L", "Azul/Amarillo", 105000, 10],
+    [8, "River Plate", "S", "Blanco/Rojo", 9500, 10],
+    [9, "Racing Club", "M", "Blanco/Azul", 90000, 5]
+]
+
+
+HISTORIAL_VENTAS = []
+
+
+CARRITO = []
+
+def validar_numero(prompt, tipo=int):
+    """Valida que la entrada del usuario sea un número."""
+    while True:
+        try:
+            return tipo(input(prompt))
+        except ValueError:
+            print("Entrada inválida. Por favor, ingrese un número.")
+
+def menu_admin():
+    """Menú para el administrador con funciones de gestión."""
+    while True:
+        print("\n--- MENÚ DE ADMINISTRADOR ---")
+        print("1. Ver inventario completo")
+        print("2. Reponer stock")
+        print("3. Ver historial de ventas")
+        print("4. Volver al menú principal")
+        
+        opcion = input("Elige una opción: ")
+        
+        if opcion == "1":
+            ver_inventario_admin()
+        elif opcion == "2":
+            reponer_stock()
+        elif opcion == "3":
+            ver_ventas()
+        elif opcion == "4":
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+def ver_inventario_admin():
+    
+    if not INVENTARIO_MATRIZ:
+        print("El inventario está vacío.")
+        return
+
+    print("\n--- INVENTARIO COMPLETO (ADMIN) ---")
+    print(f"{'ID':<4} {'Diseño':<25} {'Talla':<6} {'Color':<15} {'Precio':<10} {'Cantidad':<10}")
+    print("-" * 75)
+    
+    for camiseta in INVENTARIO_MATRIZ:
+        _id, nombre, talla, color, precio, cantidad = camiseta
+        print(f"{_id:<4} {nombre:<25} {talla:<6} {color:<15} ${precio:<9.2f} {cantidad:<10}")
+    
+    print("----------------------------------\n")
+
+def reponer_stock():
+   
+    ver_inventario_admin()
+    
+    busqueda = input("Ingrese el ID o nombre de la camiseta a reponer (o 'volver'): ")
+    
+    # Nuevo: Opción de volver
+    if busqueda.lower() == 'volver':
+        print("Volviendo al menú de administrador.")
+        return
+        
+    camiseta_encontrada = None
+    
+    for camiseta in INVENTARIO_MATRIZ:
+        _id, nombre, _, _, _, _ = camiseta
+        if str(_id) == busqueda or busqueda.lower() in nombre.lower():
+            camiseta_encontrada = camiseta
+            break
+    
+    if camiseta_encontrada is None:
+        print("Camiseta no encontrada.")
+        return
+
+    _id, nombre, cantidad_actual = camiseta_encontrada[0], camiseta_encontrada[1], camiseta_encontrada[5]
+    print(f"\nSeleccionaste: '{nombre}' (Stock actual: {cantidad_actual})")
+    
+    cantidad_a_reponer = validar_numero(f"¿Cuántas unidades de '{nombre}' desea agregar?: ")
+    
+    if cantidad_a_reponer <= 0:
+        print("Error: La cantidad a reponer debe ser mayor que cero.")
+        return
+    
+    camiseta_encontrada[5] += cantidad_a_reponer
+    print(f"Stock de '{nombre}' actualizado. Nuevo stock: {camiseta_encontrada[5]}")
+
+def ver_ventas():
+    
+    if not HISTORIAL_VENTAS:
+        print("Aún no se han registrado ventas.")
+        return
+    
+    print("\n--- HISTORIAL DE VENTAS ---")
+    print(f"{'Fecha':<20} {'Diseño':<25} {'Cantidad':<10} {'Total':<10}")
+    print("-" * 65)
+    
+    for venta in HISTORIAL_VENTAS:
+        fecha, nombre, cantidad, total = venta
+        print(f"{fecha:<20} {nombre:<25} {cantidad:<10} ${total:<9.2f}")
+    
+    print("----------------------------\n")
+
+# --- Funciones de Usuario ---
+
+def get_unique_products():
+   
+    productos_unicos = []
+    nombres_ya_vistos = set()
+    for camiseta in INVENTARIO_MATRIZ:
+        nombre = camiseta[1]
+        if nombre not in nombres_ya_vistos and camiseta[5] > 0:
+            productos_unicos.append(camiseta)
+            nombres_ya_vistos.add(nombre)
+    return productos_unicos
+
+def ver_inventario_usuario():
+    
+    productos = get_unique_products()
+    if not productos:
+        print("No hay productos disponibles para la venta.")
+        return
+
+    print("\n--- PRODUCTOS DISPONIBLES ---")
+    print(f"{'ID':<4} {'Diseño':<25}")
+    print("-" * 30)
+    
+    # Muestra los ID y nombres únicos de los productos
+    for i, camiseta in enumerate(productos, 1):
+        print(f"{i:<4} {camiseta[1]:<25}")
+    
+    print("------------------------------\n")
+    return productos
+
+def seleccionar_producto_por_nombre():
+    
+    productos_disponibles = ver_inventario_usuario()
+    if not productos_disponibles:
+        return None
+    
+    seleccion = input("Ingrese el número del producto que desea comprar (o 'volver'): ").strip()
+    if seleccion.lower() == 'volver':
+        return None
+    
+    try:
+        idx_seleccion = int(seleccion) - 1
+        if 0 <= idx_seleccion < len(productos_disponibles):
+            producto_elegido_nombre = productos_disponibles[idx_seleccion][1]
+            
+           
+            opciones_talle = [c for c in INVENTARIO_MATRIZ if c[1] == producto_elegido_nombre and c[5] > 0]
+            
+            if not opciones_talle:
+                print("No hay talles disponibles para este producto.")
+                return None
+            
+            print(f"\n--- TALLES DISPONIBLES PARA '{producto_elegido_nombre}' ---")
+            for i, item_talle in enumerate(opciones_talle, 1):
+                _id, _, talle, _, precio, cantidad = item_talle
+                print(f"{i:<4} Talle {talle} | Precio: ${precio:.2f} | Stock: {cantidad} unidades")
+            
+            seleccion_talle = input("Ingrese el número del talle que desea (o 'volver'): ").strip()
+            if seleccion_talle.lower() == 'volver':
+                return None
+                
+            idx_talle_seleccionado = int(seleccion_talle) - 1
+            if 0 <= idx_talle_seleccionado < len(opciones_talle):
+                return opciones_talle[idx_talle_seleccionado]
+            else:
+                print("Opción de talle no válida. Volviendo al menú principal de compra.")
+                return None
+        else:
+            print("Opción de producto no válida. Volviendo al menú principal de compra.")
+            return None
+    except (ValueError, IndexError):
+        print("Entrada inválida. Volviendo al menú principal de compra.")
+        return None
+
+def mostrar_carrito():
+    """Muestra el contenido del carrito."""
+    if not CARRITO:
+        print("El carrito está vacío.")
+        return 0, 0
+    
+    print("\n--- TU CARRITO ---")
+    total_sin_descuento = 0
+    total_articulos = 0
+    
+    print(f"{'ID':<4} {'Diseño':<25} {'Talla':<6} {'Cantidad':<10} {'Subtotal':<10}")
+    print("-" * 60)
+    for item in CARRITO:
+        subtotal = item['precio'] * item['cantidad']
+        total_sin_descuento += subtotal
+        total_articulos += item['cantidad']
+        print(f"{item['id']:<4} {item['nombre']:<25} {item['talla']:<6} {item['cantidad']:<10} ${subtotal:<9.2f}")
+    
+    print("----------------------------------")
+    print(f"Total de artículos: {total_articulos}")
+    print(f"Total sin descuento: ${total_sin_descuento:.2f}")
+
+    if total_articulos >= 4:
+        descuento = total_sin_descuento * DESCUENTO_POR_MAYOR
+        total_con_descuento = total_sin_descuento - descuento
+        print(f"Descuento ({int(DESCUENTO_POR_MAYOR*100)}%): ${descuento:.2f}")
+        print(f"Total a pagar con descuento: ${total_con_descuento:.2f}")
+        return total_con_descuento, total_articulos
+    else:
+        return total_sin_descuento, total_articulos
+
+def comprar_camiseta():
+    
+    while True:
+        mostrar_carrito()
+        print("\n--- ¿QUÉ DESEA HACER? ---")
+        print("1. Agregar un producto al carrito")
+        print("2. Finalizar compra e ir al pago")
+        print("3. Vaciar carrito y volver")
+        
+        opcion = input("Elige una opción: ")
+
+        if opcion == "1":
+            camiseta_encontrada = seleccionar_producto_por_nombre()
+            if camiseta_encontrada:
+                _id, nombre, talla, _, _, cantidad_stock = camiseta_encontrada
+                
+                cantidad_a_comprar = validar_numero("¿Cuántas unidades desea agregar al carrito?: ")
+                
+                if cantidad_a_comprar <= 0 or cantidad_a_comprar > cantidad_stock:
+                    print("Error: Cantidad inválida o no hay suficiente stock.")
+                    continue
+                
+                
+                item_carrito = {
+                    'id': _id,
+                    'nombre': nombre,
+                    'talla': talla,
+                    'cantidad': cantidad_a_comprar,
+                    'precio': camiseta_encontrada[4]
+                }
+                CARRITO.append(item_carrito)
+                print(f"{cantidad_a_comprar} unidad(es) de '{nombre}' (Talle {talla}) añadidas al carrito.")
+
+        elif opcion == "2":
+            if not CARRITO:
+                print("El carrito está vacío. Agregue productos para continuar.")
+                continue
+            
+            total_final, total_articulos = mostrar_carrito()
+
+           
+            print("\n--- PAGO CON TARJETA ---")
+            print("1. Visa")
+            print("2. Mastercard")
+            
+            metodo_pago = input("Seleccione el tipo de tarjeta (1 o 2): ")
+
+            if metodo_pago not in ["1", "2"]:
+                print("Opción de tarjeta no válida. Compra cancelada.")
+                CARRITO.clear()
+                return
+
+            print("\n--- CUOTAS ---")
+            print("1. 1 cuota sin interés")
+            print("2. 3 cuotas sin interés")
+            print("3. 6 cuotas con 5% de recargo")
+            
+            opcion_cuotas = input("Seleccione la cantidad de cuotas (1, 2 o 3): ")
+
+            monto_cuota = 0
+            recargo = 0
+
+            if opcion_cuotas == "1":
+                monto_cuota = total_final
+                print(f"Total a pagar en 1 cuota: ${monto_cuota:.2f}")
+            elif opcion_cuotas == "2":
+                monto_cuota = total_final / 3
+                print(f"Total a pagar en 3 cuotas de ${monto_cuota:.2f} sin interés.")
+            elif opcion_cuotas == "3":
+                recargo = total_final * 0.05
+                total_con_recargo = total_final + recargo
+                monto_cuota = total_con_recargo / 6
+                print(f"Total a pagar en 6 cuotas de ${monto_cuota:.2f} (recargo de ${recargo:.2f}).")
+                total_final = total_con_recargo
+            else:
+                print("Opción de cuotas no válida. Compra cancelada.")
+                CARRITO.clear()
+                return
+            
+            print("\nProcesando pago... Pago exitoso.")
+
+           
+            for item in CARRITO:
+                for camiseta in INVENTARIO_MATRIZ:
+                    if camiseta[0] == item['id']:
+                        camiseta[5] -= item['cantidad']
+                        break
+                
+                fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                venta_registrada = (fecha, f"{item['nombre']} ({item['talla']})", item['cantidad'], total_final)
+                HISTORIAL_VENTAS.append(venta_registrada)
+
+            print("\n¡Compra completada con éxito!")
+            CARRITO.clear()
+            return
+        
+        elif opcion == "3":
+            CARRITO.clear()
+            print("Carrito vaciado. Volviendo al menú principal.")
+            return
+
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+# --- Menú Principal ---
+def menu_principal():
+   
+    while True:
+        print("\n--- BIENVENIDO A LA TIENDA DE CAMISETAS ---")
+        print("1. Comprar una camiseta")
+        print("2. Acceso de administrador")
+        print("3. Salir")
+        
+        opcion = input("Elige una opción: ")
+        
+        if opcion == "1":
+            comprar_camiseta()
+        elif opcion == "2":
+            clave_ingresada = input("Ingrese la clave de administrador: ")
+            if clave_ingresada == CLAVE_ADMIN:
+                menu_admin()
+            else:
+                print("Clave incorrecta. Acceso denegado.")
+        elif opcion == "3":
+            print("Gracias por su visita. ¡Hasta la próxima!")
+            break
+        else:
+            print("Opción no válida. Intente de nuevo.")
+
+if __name__ == "__main__":
+    menu_principal()
