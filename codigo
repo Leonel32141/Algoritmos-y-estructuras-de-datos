@@ -75,7 +75,7 @@ def reponer_stock():
     
     busqueda = input("Ingrese el ID o nombre de la camiseta a reponer (o 'volver'): ")
     
-    # Nuevo: Opción de volver
+    
     if busqueda.lower() == 'volver':
         print("Volviendo al menú de administrador.")
         return
@@ -120,7 +120,7 @@ def ver_ventas():
     
     print("----------------------------\n")
 
-# --- Funciones de Usuario ---
+
 
 def get_unique_products():
    
@@ -144,7 +144,7 @@ def ver_inventario_usuario():
     print(f"{'ID':<4} {'Diseño':<25}")
     print("-" * 30)
     
-    # Muestra los ID y nombres únicos de los productos
+    
     for i, camiseta in enumerate(productos, 1):
         print(f"{i:<4} {camiseta[1]:<25}")
     
@@ -330,9 +330,9 @@ def comprar_camiseta():
         else:
             print("Opción no válida. Intente de nuevo.")
 
-# --- Menú Principal ---
+
 def menu_principal():
-   
+    """Menú principal para el usuario general y acceso al modo administrador."""
     while True:
         print("\n--- BIENVENIDO A LA TIENDA DE CAMISETAS ---")
         print("1. Comprar una camiseta")
